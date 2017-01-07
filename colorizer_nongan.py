@@ -10,6 +10,7 @@ import cv2
 import numpy as np
 from keras.models import load_model
 from keras.models import save_model
+import argparse
 
 class Colorizer:
     def __init__(self):
@@ -112,69 +113,53 @@ class Colorizer:
         conv10 = Convolution2D(3, 1, 1, activation='tanh')(conv9)
 
         model = Model(input=inputs, output=conv10)
-        print model.summary()
-        # model.compile(optimize r=Adam(lr=1e-5), loss='', metrics=[dice_coef])
 
         return model
 
-colorizer = Colorizer()
+def main(args):
+    colorizer = Colorizer()
 
-X = utils.get_mixed_data(size=(64,64), count=5000, sources=[utils.laptop_data, utils.face_data, utils.flickr_data, utils.cars_data])
+    X = utils.data(size=(64,64), count=5000, path=args.data_path)
 
-np.random.shuffle(X)
-y = np.copy(X)
-X = np.expand_dims(np.mean(X, axis=1), axis=1)
-X = np.repeat(X, repeats=3, axis=1)
-print X.shape
+    np.random.shuffle(X)
+    y = np.copy(X)
+    X = np.expand_dims(np.mean(X, axis=1), axis=1)
+    X = np.repeat(X, repeats=3, axis=1)
+    print X.shape
 
-for i,j in colorizer.train(X, y, epochs=5, batch_size=32):
-    sample = X[:100]
-    osample = y[:100]
-    predicted = colorizer.predict(sample)
-    img1 = utils.arrange_images(sample)
-    img2 = utils.arrange_images(predicted)
-    img3 = utils.arrange_images(osample)
-    cv2.imshow('f1',img1)
-    cv2.imshow('f2',img2)
-    cv2.imshow('f3', img3)
-    cv2.waitKey(10)
+    for i,j in colorizer.train(X, y, epochs=50, batch_size=32):
+        sample = X[:100]
+        osample = y[:100]
+        predicted = colorizer.predict(sample)
+        img1 = utils.arrange_images(sample)
+        img2 = utils.arrange_images(predicted)
+        img3 = utils.arrange_images(osample)
+        cv2.imshow('f1',img1)
+        cv2.imshow('f2',img2)
+        cv2.imshow('f3', img3)
+        cv2.waitKey(10)
 
-colorizer.save("colorizer")
-colorizer.load("colorizer")
+    colorizer.save(args.model_path)
+    colorizer.load(args.mode_path)
 
-X = utils.get_mixed_data(size=(64,64), count=100)
+    X = utils.data(size=(64,64), count=8000, path=args.data_path)
 
-X = np.expand_dims(np.mean(X, axis=1), axis=1)
-X = np.repeat(X, repeats=3, axis=1)
-print X.shape
+    X = np.expand_dims(np.mean(X, axis=1), axis=1)
+    X = np.repeat(X, repeats=3, axis=1)
+    print X.shape
 
-for i in range(100):
-    sample = X[i*100:(i+1)*100]
-    predicted = colorizer.predict(sample)
-    img1 = utils.arrange_images(sample)
-    img2 = utils.arrange_images(predicted)
+    for i in range(100):
+        sample = X[i*100:(i+1)*100]
+        predicted = colorizer.predict(sample)
+        img1 = utils.arrange_images(sample)
+        img2 = utils.arrange_images(predicted)
+        cv2.imshow('f1',img1)
+        cv2.imshow('f2',img2)
+        cv2.waitKey(0)
 
-    cv2.imwrite('sample_' + str(i) + '.png', np.concatenate((img1, img2)) * 255)
-    cv2.imwrite('grayscale_' + str(i) + '.png',img1*255)
-    cv2.imwrite('colored_' + str(i) + '.png', img2*255)
-    # cv2.waitKey(0)
-
-
-
-# reader = cv2.VideoCapture(0)
-# while(True):
-#     ret, frame = reader.read()
-#     X = cv2.resize(frame, (64, 64),  interpolation=cv2.INTER_LINEAR)
-#     X = utils.rec(X)
-#
-#     X = np.expand_dims(np.mean(X, axis=0), axis=0)
-#     X = np.repeat(X, repeats=3, axis=0)
-#     X = (X - 127.5) / 127.5
-#     Xcolor = (colorizer.predict(np.expand_dims(X,axis=0))[0] + 1)/2
-#     Xcolor = cv2.merge((Xcolor[0, :, :], Xcolor[1, :, :], Xcolor[2, :, :]))
-#     print Xcolor.shape
-#
-#     cv2.imshow("colored", Xcolor)
-#     # cv2.imshow("bw", X)
-#     cv2.imshow("original", frame)
-#     cv2.waitKey(10)
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--data_path", required=True)
+    parser.add_argument("--model_path", required=True)
+    args = parser.parse_args()
+    main(args)

@@ -24,48 +24,8 @@ def load_images(path,size,count):
 def rec(img):
     return np.moveaxis(img, 2, 0)
 
-def flickr_data(size, count=None):
-    return load_images(path="/home/apurva/Desktop/deep_learning/data/flickr_data/Flickr8k_Dataset/Flicker8k_Dataset/",size=size,count=count)
-
-def laptop_data(size, count=None):
-    return load_images(path="/home/apurva/Desktop/deep_learning/data/brimages/",size=size, count=count)
-
-def dogs_cats_data(size, count=None):
-    return load_images(path="/home/apurva/Desktop/deep_learning/data/dogs_cats/train/",size=size, count=count)
-
-def face_data(size, count=None):
-    return load_images(path="/home/apurva/Desktop/deep_learning/data/img_align_celeba/", size=size, count=count)
-
-def xkcd_data(size, count=None):
-    return load_images(path="/home/apurva/Desktop/deep_learning/data/imgs.xkcd.com/comics/", size=size, count=count)
-
-def cifar_data(size, count=None):
-    return load_images(path="/home/apurva/Desktop/deep_learning/data/cifar/test/", size=size, count=count)
-
-def indoor_data(size, count=None):
-    return load_images(path="/home/apurva/Desktop/deep_learning/data/indoor_flattened/", size=size, count=count)
-
-def cifar100_data(size, count=None):
-    return (cifar100.load_data()[0][0][:count] - 127.5) / 127.5
-
-def flowers_data(size, count=None):
-    return load_images(path="/home/apurva/Desktop/deep_learning/data/flowers/", size=size, count=count)
-
-def cars_data(size, count=None):
-    return load_images(path="/home/apurva/Desktop/deep_learning/data/cars/", size=size, count=count)
-
-def get_mixed_data(size, count=100, sources=None):
-    if sources is None:
-        sources = [cifar_data, xkcd_data, face_data, dogs_cats_data, flickr_data, laptop_data, indoor_data, flowers_data, cars_data]
-
-    data = None
-    for source in sources:
-        sample = source(size, count)
-        if data is None:
-            data = sample
-        else:
-            data = np.concatenate((data, sample))
-    return data
+def data(path, size, count=None):
+    return load_images(path=path,size=size,count=count)
 
 def arrange_images(Y):
     concat_image = None
