@@ -1,3 +1,10 @@
+#!/usr/bin/env python
+
+"""U-Net network for training a colorizer(colors black and white images)"""
+
+__author__      = "Apurva Gupta"
+__copyright__   = "Ha .. Ha Ha"
+
 from keras.layers import Convolution2D , UpSampling2D, Input, merge, BatchNormalization, Activation, Dropout
 import tensorflow as tf
 tf.python.control_flow_ops = tf
